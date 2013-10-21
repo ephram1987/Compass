@@ -56,8 +56,8 @@ public class CompassActivity extends Activity {
     View mCompassView;
     CompassView mPointer;
     TextView mLocationTextView;
-    LinearLayout mDirectionLayout;
-    LinearLayout mAngleLayout;
+    //LinearLayout mDirectionLayout;
+    //LinearLayout mAngleLayout;
 
     protected Runnable mCompassViewUpdater = new Runnable() {
         @Override
@@ -86,7 +86,7 @@ public class CompassActivity extends Activity {
                     mPointer.updateDirection(mDirection);
                 }
 
-                updateDirection();
+                //updateDirection();
 
                 mHandler.postDelayed(mCompassViewUpdater, 20);
             }
@@ -97,6 +97,7 @@ public class CompassActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        com.tomoon.sdk.Emulator.configure(getWindow());
         initResources();
         initServices();
     }
@@ -140,8 +141,8 @@ public class CompassActivity extends Activity {
         mCompassView = findViewById(R.id.view_compass);
         mPointer = (CompassView) findViewById(R.id.compass_pointer);
         mLocationTextView = (TextView) findViewById(R.id.textview_location);
-        mDirectionLayout = (LinearLayout) findViewById(R.id.layout_direction);
-        mAngleLayout = (LinearLayout) findViewById(R.id.layout_angle);
+        //mDirectionLayout = (LinearLayout) findViewById(R.id.layout_direction);
+        //mAngleLayout = (LinearLayout) findViewById(R.id.layout_angle);
 
         mPointer.setImageResource(mChinease ? R.drawable.compass_cn : R.drawable.compass);
     }
@@ -163,7 +164,7 @@ public class CompassActivity extends Activity {
 
     }
 
-    private void updateDirection() {
+ /*   private void updateDirection() {
         LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
         mDirectionLayout.removeAllViews();
@@ -245,7 +246,7 @@ public class CompassActivity extends Activity {
         degreeImageView.setImageResource(R.drawable.degree);
         degreeImageView.setLayoutParams(lp);
         mAngleLayout.addView(degreeImageView);
-    }
+    }*/
 
     private ImageView getNumberImage(int number) {
         ImageView image = new ImageView(this);
