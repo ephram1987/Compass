@@ -86,7 +86,7 @@ public class CompassActivity extends Activity {
                     mPointer.updateDirection(mDirection);
                 }
 
-                //updateDirection();
+                updateDirection();
 
                 mHandler.postDelayed(mCompassViewUpdater, 20);
             }
@@ -105,12 +105,12 @@ public class CompassActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (mLocationProvider != null) {
-            updateLocation(mLocationManager.getLastKnownLocation(mLocationProvider));
-            mLocationManager.requestLocationUpdates(mLocationProvider, 2000, 10, mLocationListener);
-        } else {
-            mLocationTextView.setText(R.string.cannot_get_location);
-        }
+//        if (mLocationProvider != null) {
+//            updateLocation(mLocationManager.getLastKnownLocation(mLocationProvider));
+//            mLocationManager.requestLocationUpdates(mLocationProvider, 2000, 10, mLocationListener);
+//        } else {
+//            mLocationTextView.setText(R.string.cannot_get_location);
+//        }
         if (mOrientationSensor != null) {
             mSensorManager.registerListener(mOrientationSensorEventListener, mOrientationSensor,
                     SensorManager.SENSOR_DELAY_GAME);
@@ -126,9 +126,9 @@ public class CompassActivity extends Activity {
         if (mOrientationSensor != null) {
             mSensorManager.unregisterListener(mOrientationSensorEventListener);
         }
-        if (mLocationProvider != null) {
-            mLocationManager.removeUpdates(mLocationListener);
-        }
+//        if (mLocationProvider != null) {
+//            mLocationManager.removeUpdates(mLocationListener);
+//        }
     }
 
     private void initResources() {
@@ -153,17 +153,66 @@ public class CompassActivity extends Activity {
         mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
         // location manager
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Criteria criteria = new Criteria();
-        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-        criteria.setAltitudeRequired(false);
-        criteria.setBearingRequired(false);
-        criteria.setCostAllowed(true);
-        criteria.setPowerRequirement(Criteria.POWER_LOW);
-        mLocationProvider = mLocationManager.getBestProvider(criteria, true);
+//        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+//        Criteria criteria = new Criteria();
+//        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+//        criteria.setAltitudeRequired(false);
+//        criteria.setBearingRequired(false);
+//        criteria.setCostAllowed(true);
+//        criteria.setPowerRequirement(Criteria.POWER_LOW);
+//        mLocationProvider = mLocationManager.getBestProvider(criteria, true);
 
     }
 
+	  private void updateDirection() {
+		StringBuilder sb = new StringBuilder();
+		boolean east = false;
+		boolean west = false;
+		boolean north = false;
+		boolean south = false;
+	    float direction = normalizeDegree(mTargetDirection * -1.0f);
+	    if (direction > 22.5f && direction < 157.5f) {
+	        // east
+	    	east = true;
+	    } else if (direction > 202.5f && direction < 337.5f) {
+	        // west
+	    	west = true;
+	    }
+	
+	    if (direction > 112.5f && direction < 247.5f) {
+	        // south
+	    	south = true;
+	    } else if (direction < 67.5 || direction > 292.5f) {
+	        // north
+	    	north = true;
+	    }
+	
+	    if (mChinease) {
+	        // east/west should be before north/south
+	    	if(east)
+	    		sb.append("东");
+	    	if(west)
+	    		sb.append("西");
+	    	if(north)
+	    		sb.append("北");
+	    	if(south)
+	    		sb.append("南");
+	    } else {
+	        // north/south should be before east/west
+	    	if(east)
+	    		sb.append("east");
+	    	if(west)
+	    		sb.append("west");
+	    	if(north)
+	    		sb.append("north");
+	    	if(south)
+	    		sb.append("south");
+	    }
+	    sb.append(direction + "°");
+	    mLocationTextView.setText(sb.toString());
+	
+	}
+    
  /*   private void updateDirection() {
         LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
@@ -248,7 +297,7 @@ public class CompassActivity extends Activity {
         mAngleLayout.addView(degreeImageView);
     }*/
 
-    private ImageView getNumberImage(int number) {
+/*    private ImageView getNumberImage(int number) {
         ImageView image = new ImageView(this);
         LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         switch (number) {
@@ -285,40 +334,40 @@ public class CompassActivity extends Activity {
         }
         image.setLayoutParams(lp);
         return image;
-    }
+    }*/
 
-    private void updateLocation(Location location) {
-        if (location == null) {
-            mLocationTextView.setText(R.string.getting_location);
-        } else {
-            StringBuilder sb = new StringBuilder();
-            double latitude = location.getLatitude();
-            double longitude = location.getLongitude();
-
-            if (latitude >= 0.0f) {
-                sb.append(getString(R.string.location_north, getLocationString(latitude)));
-            } else {
-                sb.append(getString(R.string.location_south, getLocationString(-1.0 * latitude)));
-            }
-
-            sb.append("    ");
-
-            if (longitude >= 0.0f) {
-                sb.append(getString(R.string.location_east, getLocationString(longitude)));
-            } else {
-                sb.append(getString(R.string.location_west, getLocationString(-1.0 * longitude)));
-            }
-
-            mLocationTextView.setText(sb.toString());
-        }
-    }
-
-    private String getLocationString(double input) {
-        int du = (int) input;
-        int fen = (((int) ((input - du) * 3600))) / 60;
-        int miao = (((int) ((input - du) * 3600))) % 60;
-        return String.valueOf(du) + "°" + String.valueOf(fen) + "'" + String.valueOf(miao) + "\"";
-    }
+//    private void updateLocation(Location location) {
+//        if (location == null) {
+//            mLocationTextView.setText(R.string.getting_location);
+//        } else {
+//            StringBuilder sb = new StringBuilder();
+//            double latitude = location.getLatitude();
+//            double longitude = location.getLongitude();
+//
+//            if (latitude >= 0.0f) {
+//                sb.append(getString(R.string.location_north, getLocationString(latitude)));
+//            } else {
+//                sb.append(getString(R.string.location_south, getLocationString(-1.0 * latitude)));
+//            }
+//
+//            sb.append("\n");
+//
+//            if (longitude >= 0.0f) {
+//                sb.append(getString(R.string.location_east, getLocationString(longitude)));
+//            } else {
+//                sb.append(getString(R.string.location_west, getLocationString(-1.0 * longitude)));
+//            }
+//
+//            mLocationTextView.setText(sb.toString());
+//        }
+//    }
+//
+//    private String getLocationString(double input) {
+//        int du = (int) input;
+//        int fen = (((int) ((input - du) * 3600))) / 60;
+//        int miao = (((int) ((input - du) * 3600))) % 60;
+//        return String.valueOf(du) + "°" + String.valueOf(fen) + "'" + String.valueOf(miao) + "\"";
+//    }
 
     private SensorEventListener mOrientationSensorEventListener = new SensorEventListener() {
 
@@ -337,29 +386,29 @@ public class CompassActivity extends Activity {
         return (degree + 720) % 360;
     }
 
-    LocationListener mLocationListener = new LocationListener() {
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-            if (status != LocationProvider.OUT_OF_SERVICE) {
-                updateLocation(mLocationManager.getLastKnownLocation(mLocationProvider));
-            } else {
-                mLocationTextView.setText(R.string.cannot_get_location);
-            }
-        }
-
-        @Override
-        public void onProviderEnabled(String provider) {
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-        }
-
-        @Override
-        public void onLocationChanged(Location location) {
-            updateLocation(location);
-        }
-
-    };
+//    LocationListener mLocationListener = new LocationListener() {
+//
+//        @Override
+//        public void onStatusChanged(String provider, int status, Bundle extras) {
+//            if (status != LocationProvider.OUT_OF_SERVICE) {
+//                updateLocation(mLocationManager.getLastKnownLocation(mLocationProvider));
+//            } else {
+//                mLocationTextView.setText(R.string.cannot_get_location);
+//            }
+//        }
+//
+//        @Override
+//        public void onProviderEnabled(String provider) {
+//        }
+//
+//        @Override
+//        public void onProviderDisabled(String provider) {
+//        }
+//
+//        @Override
+//        public void onLocationChanged(Location location) {
+//            //updateLocation(location);
+//        }
+//
+//    };
 }
