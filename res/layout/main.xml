@@ -85,24 +85,25 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="center" >
 
-                        <ImageView
+                        <!--<ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:src="@drawable/background_compass" />
+                            android:src="@drawable/background_compass" />-->
 
                         <net.micode.compass.CompassView
                             android:id="@+id/compass_pointer"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dip"
+                            android:layout_width="220dip"
+                            android:layout_height="220dip"
                             android:layout_gravity="center"
                             android:src="@drawable/compass" />
 
-                        <ImageView
+                        <!-- <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:src="@drawable/miui_cover" />
+                            android:src="@drawable/miui_cover" /> -->
                     </FrameLayout>
                 </LinearLayout>
             </LinearLayout>
@@ -126,7 +127,7 @@
                     android:layout_gravity="center"
                     android:text="@string/getting_location"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textColor="#7FFFFFFF" />
+                    android:textColor="@android:color/black" />
             </FrameLayout>
         </LinearLayout>
     </FrameLayout>
