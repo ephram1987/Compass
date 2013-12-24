@@ -30,6 +30,7 @@ import android.location.LocationProvider;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AccelerateInterpolator;
@@ -44,14 +45,23 @@ public class CompassActivity extends Activity {
     private final float MAX_ROATE_DEGREE = 1.0f;
     private SensorManager mSensorManager;
     private Sensor mOrientationSensor;
-    private LocationManager mLocationManager;
-    private String mLocationProvider;
+    private Sensor sensorAccelerometer;
+    private Sensor sensorMagneticField;
+    //private LocationManager mLocationManager;
+    //private String mLocationProvider;
     private float mDirection;
     private float mTargetDirection;
     private AccelerateInterpolator mInterpolator;
     protected final Handler mHandler = new Handler();
     private boolean mStopDrawing;
     private boolean mChinease;
+    
+    private float[] valuesAccelerometer = new float[3];
+    private float[] valuesMagneticField = new float[3];
+      
+    private float[] matrixR = new float[9];
+    private float[] matrixI = new float[9];
+    private float[] matrixValues = new float[3];
 
     View mCompassView;
     CompassView mPointer;
@@ -88,7 +98,8 @@ public class CompassActivity extends Activity {
 
                 updateDirection();
 
-                mHandler.postDelayed(mCompassViewUpdater, 20);
+                //mHandler.postDelayed(mCompassViewUpdater, 20);
+                mHandler.postDelayed(mCompassViewUpdater, 200);//to fit eink display 5fps
             }
         }
     };
@@ -111,19 +122,37 @@ public class CompassActivity extends Activity {
 //        } else {
 //            mLocationTextView.setText(R.string.cannot_get_location);
 //        }
-        if (mOrientationSensor != null) {
-            mSensorManager.registerListener(mOrientationSensorEventListener, mOrientationSensor,
+//        if (mOrientationSensor != null) {
+//            mSensorManager.registerListener(mOrientationSensorEventListener, mOrientationSensor,
+//                    SensorManager.SENSOR_DELAY_GAME);
+//            		//SensorManager.SENSOR_DELAY_UI);
+//        }
+        if (sensorAccelerometer != null) {
+            mSensorManager.registerListener(mOrientationSensorEventListener, sensorAccelerometer,
                     SensorManager.SENSOR_DELAY_GAME);
+            		//SensorManager.SENSOR_DELAY_UI);
+        }
+        if (sensorMagneticField != null) {
+            mSensorManager.registerListener(mOrientationSensorEventListener, sensorMagneticField,
+                    SensorManager.SENSOR_DELAY_GAME);
+            		//SensorManager.SENSOR_DELAY_UI);
         }
         mStopDrawing = false;
-        mHandler.postDelayed(mCompassViewUpdater, 20);
+        //mHandler.postDelayed(mCompassViewUpdater, 20);
+        mHandler.postDelayed(mCompassViewUpdater, 200);//to fit eink display 5fps
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         mStopDrawing = true;
-        if (mOrientationSensor != null) {
+//        if (mOrientationSensor != null) {
+//            mSensorManager.unregisterListener(mOrientationSensorEventListener);
+//        }
+        if (sensorAccelerometer != null) {
+            mSensorManager.unregisterListener(mOrientationSensorEventListener);
+        }
+        if (sensorMagneticField != null) {
             mSensorManager.unregisterListener(mOrientationSensorEventListener);
         }
 //        if (mLocationProvider != null) {
@@ -150,17 +179,10 @@ public class CompassActivity extends Activity {
     private void initServices() {
         // sensor manager
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+//        mOrientationSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_ORIENTATION);
+        sensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorMagneticField = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
-        // location manager
-//        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-//        Criteria criteria = new Criteria();
-//        criteria.setAccuracy(Criteria.ACCURACY_FINE);
-//        criteria.setAltitudeRequired(false);
-//        criteria.setBearingRequired(false);
-//        criteria.setCostAllowed(true);
-//        criteria.setPowerRequirement(Criteria.POWER_LOW);
-//        mLocationProvider = mLocationManager.getBestProvider(criteria, true);
 
     }
 
@@ -297,84 +319,41 @@ public class CompassActivity extends Activity {
         mAngleLayout.addView(degreeImageView);
     }*/
 
-/*    private ImageView getNumberImage(int number) {
-        ImageView image = new ImageView(this);
-        LayoutParams lp = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        switch (number) {
-            case 0:
-                image.setImageResource(R.drawable.number_0);
-                break;
-            case 1:
-                image.setImageResource(R.drawable.number_1);
-                break;
-            case 2:
-                image.setImageResource(R.drawable.number_2);
-                break;
-            case 3:
-                image.setImageResource(R.drawable.number_3);
-                break;
-            case 4:
-                image.setImageResource(R.drawable.number_4);
-                break;
-            case 5:
-                image.setImageResource(R.drawable.number_5);
-                break;
-            case 6:
-                image.setImageResource(R.drawable.number_6);
-                break;
-            case 7:
-                image.setImageResource(R.drawable.number_7);
-                break;
-            case 8:
-                image.setImageResource(R.drawable.number_8);
-                break;
-            case 9:
-                image.setImageResource(R.drawable.number_9);
-                break;
-        }
-        image.setLayoutParams(lp);
-        return image;
-    }*/
-
-//    private void updateLocation(Location location) {
-//        if (location == null) {
-//            mLocationTextView.setText(R.string.getting_location);
-//        } else {
-//            StringBuilder sb = new StringBuilder();
-//            double latitude = location.getLatitude();
-//            double longitude = location.getLongitude();
-//
-//            if (latitude >= 0.0f) {
-//                sb.append(getString(R.string.location_north, getLocationString(latitude)));
-//            } else {
-//                sb.append(getString(R.string.location_south, getLocationString(-1.0 * latitude)));
-//            }
-//
-//            sb.append("\n");
-//
-//            if (longitude >= 0.0f) {
-//                sb.append(getString(R.string.location_east, getLocationString(longitude)));
-//            } else {
-//                sb.append(getString(R.string.location_west, getLocationString(-1.0 * longitude)));
-//            }
-//
-//            mLocationTextView.setText(sb.toString());
-//        }
-//    }
-//
-//    private String getLocationString(double input) {
-//        int du = (int) input;
-//        int fen = (((int) ((input - du) * 3600))) / 60;
-//        int miao = (((int) ((input - du) * 3600))) % 60;
-//        return String.valueOf(du) + "°" + String.valueOf(fen) + "'" + String.valueOf(miao) + "\"";
-//    }
 
     private SensorEventListener mOrientationSensorEventListener = new SensorEventListener() {
 
         @Override
         public void onSensorChanged(SensorEvent event) {
-            float direction = event.values[0] * -1.0f;
-            mTargetDirection = normalizeDegree(direction);
+            //float direction = event.values[0] * -1.0f;
+            //mTargetDirection = normalizeDegree(direction);
+            
+            switch(event.sensor.getType()){
+            case Sensor.TYPE_ACCELEROMETER:
+             for(int i =0; i < 3; i++){
+              valuesAccelerometer[i] = event.values[i];
+             }
+             break;
+            case Sensor.TYPE_MAGNETIC_FIELD:
+             for(int i =0; i < 3; i++){
+              valuesMagneticField[i] = event.values[i];
+             }
+             break;
+            }
+            
+            boolean success = SensorManager.getRotationMatrix(
+            	       matrixR,
+            	       matrixI,
+            	       valuesAccelerometer,
+            	       valuesMagneticField);
+            
+            if(success){
+            	SensorManager.getOrientation(matrixR, matrixValues);
+            	double azimuth = Math.toDegrees(matrixValues[0]);
+            	//double pitch = Math.toDegrees(matrixValues[1]);
+            	//double roll = Math.toDegrees(matrixValues[2]);
+            	
+            	mTargetDirection = normalizeDegree((float) azimuth* -1.0f);
+            }
         }
 
         @Override
@@ -384,31 +363,7 @@ public class CompassActivity extends Activity {
 
     private float normalizeDegree(float degree) {
         return (degree + 720) % 360;
+    	//return (360 - degree) % 360; 
     }
 
-//    LocationListener mLocationListener = new LocationListener() {
-//
-//        @Override
-//        public void onStatusChanged(String provider, int status, Bundle extras) {
-//            if (status != LocationProvider.OUT_OF_SERVICE) {
-//                updateLocation(mLocationManager.getLastKnownLocation(mLocationProvider));
-//            } else {
-//                mLocationTextView.setText(R.string.cannot_get_location);
-//            }
-//        }
-//
-//        @Override
-//        public void onProviderEnabled(String provider) {
-//        }
-//
-//        @Override
-//        public void onProviderDisabled(String provider) {
-//        }
-//
-//        @Override
-//        public void onLocationChanged(Location location) {
-//            //updateLocation(location);
-//        }
-//
-//    };
 }
