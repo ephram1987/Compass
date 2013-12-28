@@ -42,9 +42,9 @@ import java.util.Locale;
 
 public class CompassActivity extends Activity {
 
-    private final float MAX_ROATE_DEGREE = 1.0f;
+    private final float MAX_ROATE_DEGREE = 10.0f;
     private SensorManager mSensorManager;
-    private Sensor mOrientationSensor;
+    //private Sensor mOrientationSensor;
     private Sensor sensorAccelerometer;
     private Sensor sensorMagneticField;
     //private LocationManager mLocationManager;
@@ -87,16 +87,19 @@ public class CompassActivity extends Activity {
                     float distance = to - mDirection;
                     if (Math.abs(distance) > MAX_ROATE_DEGREE) {
                         distance = distance > 0 ? MAX_ROATE_DEGREE : (-1.0f * MAX_ROATE_DEGREE);
-                    }
+                    //}
 
                     // need to slow down if the distance is short
                     mDirection = normalizeDegree(mDirection
                             + ((to - mDirection) * mInterpolator.getInterpolation(Math
-                                    .abs(distance) > MAX_ROATE_DEGREE ? 0.4f : 0.3f)));
+                                    .abs(distance) > MAX_ROATE_DEGREE ? 0.8f : 0.6f)));
                     mPointer.updateDirection(mDirection);
+                    
+                    updateDirection();
+                    }
                 }
 
-                updateDirection();
+                //updateDirection();
 
                 //mHandler.postDelayed(mCompassViewUpdater, 20);
                 mHandler.postDelayed(mCompassViewUpdater, 200);//to fit eink display 5fps
@@ -129,13 +132,13 @@ public class CompassActivity extends Activity {
 //        }
         if (sensorAccelerometer != null) {
             mSensorManager.registerListener(mOrientationSensorEventListener, sensorAccelerometer,
-                    SensorManager.SENSOR_DELAY_GAME);
-            		//SensorManager.SENSOR_DELAY_UI);
+                    //SensorManager.SENSOR_DELAY_GAME);
+            		SensorManager.SENSOR_DELAY_UI);
         }
         if (sensorMagneticField != null) {
             mSensorManager.registerListener(mOrientationSensorEventListener, sensorMagneticField,
-                    SensorManager.SENSOR_DELAY_GAME);
-            		//SensorManager.SENSOR_DELAY_UI);
+                    //SensorManager.SENSOR_DELAY_GAME);
+            		SensorManager.SENSOR_DELAY_UI);
         }
         mStopDrawing = false;
         //mHandler.postDelayed(mCompassViewUpdater, 20);
@@ -352,7 +355,8 @@ public class CompassActivity extends Activity {
             	//double pitch = Math.toDegrees(matrixValues[1]);
             	//double roll = Math.toDegrees(matrixValues[2]);
             	
-            	mTargetDirection = normalizeDegree((float) azimuth* -1.0f);
+            	if(Math.random() < 0.1f) //slow down frequency
+            		mTargetDirection = normalizeDegree((float) azimuth* -1.0f);
             }
         }
 
